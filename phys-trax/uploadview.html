@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <a href="main.html" target = _self>
+        <img src="resources/logo.png" height="100" alt="This is the logo of Phys-Trax" title= "Return to Homepage" class="center">
+    </a>
+    <style>
+        body {
+          background-color: #000;
+          color: #fff;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          margin: 20px;
+          padding: 0;}
+        .container {
+          width: 80%;
+          margin: 0 auto;
+          padding: 20px;}
+        h1 {
+          text-align: center;
+          font-size: 36px;
+          margin-bottom: 30px;}
+        hr {
+            margin: 0px;}
+        p {
+          font-size: 18px;
+          line-height: 1.6;
+          margin-bottom: 20px;}
+        .link-container {
+          text-align: center;
+          margin-top: 30px;}
+        .link-container a {
+          color: #fff;
+          text-decoration: none;
+          margin: 0 15px;
+          font-size: 20px;
+          transition: all 0.3s ease;}
+        .link-container a:hover {
+          color: #00f;} 
+        .center {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;}
+        .input-container {
+          text-align: center;}   
+        .image-container {
+          display: flex;}
+        .image-container img {
+          width: 100px; 
+          margin: 10px;} 
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse"></script>
+</head>
+<body>
+    <hr>
+    <h1 style="text-align: center;">Analyzing Your Own Physiological Data</h1>
+    <hr>
+    <h2>Upload your .csv files below</h2>
+    <div class="image-container">
+        <img src="resources/arrow.png" alt="Image 1">
+    </div>
+
+    <input type="file" id="csv-file" class="csv-file" accept=".csv" multiple>
+    <br>
+    <button onclick="generateGraph()">Generate Graph</button>
+    <canvas id="hrGraph"></canvas>
+    <canvas id="hrvGraph"></canvas>
+</body>
+
+<script>
+    function generateGraph() {
+        const files = document.getElementById('csv-file').files;
+        const labels = []; 
+        const hrData = [];
+        const hrvData = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const currFile = files[i]; 
+            const fileReader = new FileReader(); 
+
+            fileReader.onload = function(event) {
+                const csvData = event.target.result; 
+                const parsedData = Papa.parse(csvData, {header: true}).data; 
+
+                // Extract data from currFile to different arrays
+                const timeStamps = parsedData.map(row => row['Timestamp']); 
+                const heartRates = parsedData.map(row => row['Heart Rate(bpm)']);
+                const hrvValues = parsedData.map(row => row['HRV(ms)']);
+
+                // Add labels, if necessary 
+                if (labels.length === 0) {
+                    labels.push(...timeStamps); // NOTE: this makes the labels for ALL data but pulls from only the first file so timestamps might be weird
+                } // if
+
+                // Add currFile's heart rate data to hrData
+                hrData.push({
+                    label: `File ${i + 1} - Heart Rate`,
+                    data: heartRates,
+                    borderColor: getRandomColor(),
+                    borderWidth: 1,
+                    fill: false
+                }) // hrData.push
+
+                hrvData.push({
+                    label: `File ${i + 1} - HRV (ms)`,
+                    data: hrvValues,
+                    borderColor: getRandomColor(),
+                    borderWidth: 1,
+                    fill: false
+                }) // hrvData.push
+
+                // Once all files have been processed, generate the graph
+                if (i === files.length - 1) {
+                    generateHeartRateGraph(labels, hrData);
+                    generateHeartRateVarGraph(labels, hrvData); 
+                } // if
+
+            } // reader.onload
+            fileReader.readAsText(currFile); 
+        } // for
+    } // generateGraph
+</script>
+
+<script>
+    // Graphing Heart Rate 
+            function generateHeartRateGraph(labels, datasets) {
+                const ctx = document.getElementById('hrGraph').getContext('2d');
+                const hrGraph = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets},
+                    options: {
+                        scales: {
+                            y: {
+                                min: 0,
+                                grid: {
+                                    drawBorder: false,
+                                    color: function(context) {
+                                        if (context.tick.value === 0) {
+                                            return 'rgba(255, 255, 255, 0.7)';}
+                                        return 'rgba(255, 255, 255, 0.2)';}},
+                                title: {
+                                    display: true,
+                                    font: {size: 20},
+                                    text: 'Beats per Minute'}},
+                            x: {
+                                title: {
+                                    display: true,
+                                    font: {size: 20},
+                                    text: 'Time'}}},
+                        plugins: {
+                            title: {
+                                display: true,
+                                font: {size: 20},
+                                text: 'Heart Rate Over Time'}}} });}
+     // Graphing HRV 
+        function generateHeartRateVarGraph(labels, datasets) {
+        const ctx = document.getElementById('hrvGraph').getContext('2d');
+        const hrvGraph = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    //Min and max values for heart rate variability
+                    y: {
+                        min: 0,
+                        max: 400,
+                        title: {
+                            display: true,
+                            font: {
+                                size: 20},
+                            text: 'HRV (ms)'}}, 
+                    x: {
+                        title: {
+                            display: true,
+                            font: {size: 20},
+                            text: 'Time'}}}, 
+                plugins: {
+                    title: {
+                        display: true,
+                        font: {size: 20},
+                        text: 'HRV Over Time'}}}});}
+    //Below this is to randomize the color of the different files uploaded 
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];}
+                return color;}
+</script>
+
+</html>
