@@ -65,13 +65,13 @@
 
     <input type="file" id="csv-file" class="csv-file" accept=".csv" multiple>
     <br>
-    <button onclick="generateGraph()">Generate Graph</button>
     <canvas id="hrGraph"></canvas>
     <canvas id="hrvGraph"></canvas>
 </body>
 
 <script>
-    function generateGraph() {
+    document.querySelector('.csv-file').addEventListener('change', generateGraph);
+    function generateGraph(event) {
         const files = document.getElementById('csv-file').files;
         const labels = []; 
         const hrData = [];
@@ -118,9 +118,10 @@
                     generateHeartRateVarGraph(labels, hrvData); 
                 } // if
 
-            } // reader.onload
+            } // fileReader.onload
             fileReader.readAsText(currFile); 
         } // for
+
     } // generateGraph
 </script>
 

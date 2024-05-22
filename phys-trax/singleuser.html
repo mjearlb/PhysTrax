@@ -131,21 +131,21 @@
                                         return 'rgba(255, 255, 255, 0.7)';}
                                     return 'rgba(255, 255, 255, 0.2)';}},
                             title: {
-                        display: true,
-                        font: {size: 20},
-                        text: 'Beats per Minute'}},
+                                display: true,
+                                font: {size: 20},
+                                text: 'Beats per Minute'}},
                         x: {
-                    title: {
-                        display: true,
-                        font: {size: 20},
-                        text: 'Time'}}},
+                            title: {
+                                display: true,
+                                font: {size: 20},
+                                text: 'Time'}}},
                     plugins: {
                         title: {
                             display: true,
                             font: {size: 20},
                             text: 'Heart Rate Over Time'}}} });}
  // Graphing HRV 
-        function generateHRVGraph(labels, datasets) {
+    function generateHRVGraph(labels, datasets) {
     const ctx = document.getElementById('hrvChart').getContext('2d');
     const hrvChart = new Chart(ctx, {
         type: 'line',
